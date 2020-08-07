@@ -1,32 +1,27 @@
 <script>
-  export let status = "",
-    inprogress = false,
+  import { post, del } from "utils.js";
+
+  export let message = "",
+    inProgress = false,
     forceRefresh = false,
-    mySteamId,
-    apiKey;
+    mySteamId = "",
+    apiKey = "";
 
   async function handleClick(_) {
-    inprogress = true;
-    status = "Retrieving friends and games lists...";
-    let response = await fetch("/apikey", {
-      method: "POST",
-      mode: "same-origin",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        apiKey,
-        mySteamId,
-        forceRefresh,
-      }),
+    inProgress = true;
+    message = "Retrieving friends and games lists...";
+    const response = await post("/api/key", {
+      apiKey,
+      mySteamId,
+      forceRefresh,
     });
-    const res = await response.json();
-    inprogress = false;
-    if (typeof res.error !== "undefined") {
-      status = res.error;
-    } else if (typeof res.success !== "undefined") {
-      status = res.success;
+    inProgress = false;
+    if (typeof response.error !== "undefined") {
+      message = response.error;
+    } else if (typeof response.success !== "undefined") {
+      message = response.success;
+    } else {
+      message = "";
     }
   }
 </script>
@@ -39,24 +34,34 @@
   <form>
     <fieldset>
       <legend>Configuration</legend>
-      <div>
+      <div class="input-group vertical">
         <label for="steam-id">Steam ID</label>
+
         <input
           type="text"
           id="steam-id"
           bind:value={mySteamId}
           placeholder="Steam ID" />
+
       </div>
-      <div>
-        <label for="api-key">API Key</label>
-        <input type="text" bind:value={apiKey} placeholder="API Key" />
-      </div>
-      <div>
-        <label for="force-refresh">Force refresh?</label>
+      <div class="input-group vertical">
+        <label for="api-key">Steam Web API key</label>
+
         <input
-          type="checkbox"
-          bind:value={forceRefresh}
-          placeholder="Force refresh" />
+          id="api-key"
+          type="text"
+          bind:value={apiKey}
+          placeholder="API Key" />
+
+      </div>
+      <div class="row">
+        <button
+          type="button"
+          class="primary"
+          disabled={inProgress}
+          on:click={handleClick}>
+          {#if mySteamId === '' || apiKey === ''}Get started{:else}Update{/if}
+        </button>
       </div>
       <button type="button" disabled={inprogress} on:click={handleClick}>
         {#if typeof mySteamId === 'undefined' || typeof apiKey === 'undefined'}
@@ -65,7 +70,15 @@
       </button>
     </fieldset>
   </form>
-  {#if typeof status !== 'undefined' && status !== ''}
-    <p>{status}</p>
+  {#if message != ''}
+    <div class="row">
+      {#if inProgress}
+        <div class="spinner" />
+      {/if}
+      {#if message != ''}
+        <p>{message}</p>
+      {/if}
+
+    </div>
   {/if}
 </div>

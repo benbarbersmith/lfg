@@ -1,17 +1,26 @@
 <script context="module">
   export async function preload(page, session) {
-    if (typeof session.user === "undefined") {
-      console.log("no session.user");
-      return;
+    let apiKey, mySteamId;
+    if (
+      typeof session.user !== "undefined" &&
+      typeof session.user.apiKey !== "undefined" &&
+      typeof session.user.mySteamId !== "undefined"
+    ) {
+      mySteamId = session.user.mySteamId;
+      apiKey = session.user.apiKey;
+    } else if (process.browser) {
+      let response = await fetch("/api/key").then((res) => res.json());
+      mySteamId = response.mySteamId;
+      apiKey = response.apiKey;
     }
-    const { apiKey, mySteamId } = session.user;
     return { apiKey, mySteamId };
   }
 </script>
 
 <script>
   import Config from "../components/Config.svelte";
-  export let apiKey, mySteamId;
+  export let apiKey = "",
+    mySteamId = "";
 </script>
 
 <style>

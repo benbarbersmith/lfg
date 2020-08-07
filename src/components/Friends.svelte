@@ -1,5 +1,5 @@
 <script>
-  export let friends;
+  export let friends = [];
 </script>
 
 <div id="friends">
