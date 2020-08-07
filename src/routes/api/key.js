@@ -68,7 +68,12 @@ export async function post(req, res, _) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ error: "API key and Steam ID were both unchanged.", friends: req.session.user.friends }));
     }
+}
 
+export async function del(req, res, _) {
+    delete req.session.user;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ success: "Successfully cleared all user data." }));
 }
 
 async function getFriends(apiKey, steamId) {

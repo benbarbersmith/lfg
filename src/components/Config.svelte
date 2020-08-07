@@ -24,6 +24,14 @@
       message = "";
     }
   }
+
+  async function handleClear(_) {
+    inProgress = true;
+    message = "Clearing all data...";
+    const response = await del("/api/key");
+    inProgress = false;
+    message = response.success;
+  }
 </script>
 
 <style>
@@ -63,10 +71,15 @@
           {#if mySteamId === '' || apiKey === ''}Get started{:else}Update{/if}
         </button>
       </div>
-      <button type="button" disabled={inprogress} on:click={handleClick}>
-        {#if typeof mySteamId === 'undefined' || typeof apiKey === 'undefined'}
-          Get started
-        {:else}Update{/if}
+    </fieldset>
+    <fieldset>
+      <legend>Danger zone</legend>
+      <button
+        type="button"
+        class="secondary"
+        disabled={inProgress}
+        on:click={handleClear}>
+        Clear all data
       </button>
     </fieldset>
   </form>
