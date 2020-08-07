@@ -39,6 +39,15 @@
 </style>
 
 <div id="config">
+  <div>
+    <p>
+      Visit
+      <a href="https://steamcommunity.com/dev/apikey">
+        https://steamcommunity.com/dev/apikey
+      </a>
+      to get your Steam Web API key.
+    </p>
+  </div>
   <form>
     <fieldset>
       <legend>Configuration</legend>
