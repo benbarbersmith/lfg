@@ -1,65 +1,23 @@
 <script>
-  import { stores } from "@sapper/app";
-  const { session } = stores();
-
-  let friendSteamIds = [];
-  let matchedGamesByFriend = {};
-
-  const isInitialized = () =>
-    typeof session.friendsBySteamId !== "undefined" &&
-    typeof session.gamesBySteamId !== "undefined" &&
-    typeof session.mySteamId !== "undefined";
-
-  $: if (isInitialized()) {
-    matchedGamesByFriend = {};
-    const myGames = new Set(session.gamesBySteamId[session.mySteamId]);
-    for (const steamId in session.gamesBySteamId) {
-      if (steamId == session.mySteamId) {
-        // No need to match with ourselves
-        continue;
-      }
-      if (
-        !(steamId in session.gamesBySteamId) ||
-        typeof session.gamesBySteamId[steamId] === "undefined"
-      ) {
-        // No games retrieved for this user
-        continue;
-      }
-
-      friendSteamIds.push(steamId);
-      const theirGames = new Set(
-        session.gamesBySteamId[steamId].map((x) => x["appid"])
-      );
-      for (let g of myGames) {
-        if (theirGames.has(g["appid"])) {
-          if (!(steamId in matchedGamesByFriend)) {
-            matchedGamesByFriend[steamId] = [];
-          }
-          matchedGamesByFriend[steamId].push(g["name"]);
-        }
-      }
-    }
-    friendSteamIds.sort(
-      (a, b) =>
-        a in matchedGamesByFriend &&
-        (!(b in matchedGamesByFriend) ||
-          matchedGamesByFriend[a].length >= matchedGamesByFriend[b].length)
-    )
-      ? -1
-      : 1;
-  }
+  export let friends;
 </script>
 
-{#if isInitialized() && friendSteamIds.length > 0}
-  <div id="friends">
+<div id="friends">
+  {#if typeof friends !== 'undefined' && friends.length > 0}
     <h2>Games in common</h2>
-    {#each friendSteamIds as friend}
-      <h3>{session.friendsBySteamId[friend]['personaname']}</h3>
-      <ul>
-        {#each matchedGamesByFriend[friend] as game}
-          <li>{game}</li>
-        {/each}
-      </ul>
+    {#each friends as friend}
+      <h3>{friend.name}</h3>
+      {#if friend.games.length > 0}
+        <ul>
+          {#each friend.games as game}
+            <li>{game.name}</li>
+          {/each}
+        </ul>
+      {:else}
+        <p>No matching games.</p>
+      {/if}
     {/each}
-  </div>
-{/if}
+  {:else}
+    <p>No friends found.</p>
+  {/if}
+</div>
